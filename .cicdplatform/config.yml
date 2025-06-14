@@ -31,3 +31,17 @@ jobs:
 
       - name: Save Artifacts
         run: cp build/libs/*.jar /artifacts/
+
+  docker_push:
+    depends-on: build
+    steps:
+      - name: Build Docker Image
+        working-directory: workspace/app/project
+        run: docker build -t sectani/gradle-app:latest .
+
+      - name: Login to Docker Hub
+        run: |
+          echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_EAMIL" --password-stdin
+
+      - name: Push Docker Image
+        run: docker push sectani/gradle-app:latest
