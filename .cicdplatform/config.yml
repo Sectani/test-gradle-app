@@ -1,0 +1,33 @@
+version: '1.0'
+
+jobs:
+
+  runs-on: java-ci-base2:latest
+
+  setup:
+    steps:
+      - name: Clean Workspace
+        run: rm -rf workspace/app
+
+      - name: Clone Repository
+        run: git clone https://github.com/Sectani/gradle-app workspace/app
+
+  test:
+    depends-on: setup
+    steps:
+      - name: Run Tests
+        working-directory: workspace/app/project
+        run: |
+          ./gradlew test
+          mkdir -p /artifacts/test-reports
+          cp -r build/test-results/test/* /artifacts/test-reports/
+
+  build:
+    depends-on: test
+    steps:
+      - name: Build Project
+        working-directory: workspace/app/project
+        run: ./gradlew build -x test
+
+      - name: Save Artifacts
+        run: cp build/libs/*.jar /artifacts/
